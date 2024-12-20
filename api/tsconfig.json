@@ -1,0 +1,13 @@
+{
+  "extends": "@kata/ts-config/nest",
+  "compilerOptions": {
+      "baseUrl": "./",
+      "outDir": "dist",
+      "paths": {
+      },
+  },
+  "include": [
+      "src/**/*",
+      "eslint.config.mjs"
+  ]
+}

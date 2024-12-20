@@ -1,0 +1,9 @@
+{
+    "extends": "@kata/ts-config/node",
+    "compilerOptions": {
+        "incremental": false,
+        "experimentalDecorators": true,
+        "baseUrl": "."
+    },
+    "include": ["index.ts"]
+}

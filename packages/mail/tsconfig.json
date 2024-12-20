@@ -1,0 +1,7 @@
+{
+    "extends": "@kata/ts-config/node",
+    "compilerOptions": {
+        "incremental": false,
+    },
+    "include": ["src"]
+}

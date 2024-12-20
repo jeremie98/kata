@@ -1,0 +1,69 @@
+{
+  "login": {
+    "title": "Connexion",
+    "form": {
+      "email": {
+        "placeholder": "Email",
+        "validation": "Veuillez renseigné un email valide"
+      },
+      "password": {
+        "placeholder": "Mot de passe"
+      },
+      "submit": {
+        "button": "Se connecter",
+        "success": "Authentification réussie.",
+        "error": "Connexion échouée. Veuillez vérifier vos identifiants."
+      }
+    }
+  },
+  "events": {
+    "add-event": "Créer un événement",
+    "form": {
+      "new": "Nouvel événement",
+      "title": "Titre de l'événement",
+      "dateStart": "Date de début",
+      "dateEnd": "Date de fin",
+      "participants": "Participants",
+      "type": {
+        "label": "Type d'événement",
+        "options": {
+          "personal": "Personnel",
+          "team": "Equipe",
+          "project": "Projet"
+        }
+      }
+    },
+    "details-form": {
+      "title": "Modifier événement {name}"
+    },
+    "delete-event": {
+      "title": "Êtes-vous sûr de vouloir supprimer cet événement ?",
+        "explain": "Cette action est irréversible."
+    }
+  },
+  "form": {
+    "add": "Ajouter",
+    "save": "Sauvegarder",
+    "required": "Ce champs est requis.",
+    "cancel": "Annuler",
+    "continue": "Continuer"
+  },
+  "submit-action": {
+    "create": {
+      "success": "Ajout bien effectué !",
+      "error": "L'ajout a échoué, veuillez rééssayer."
+    },
+    "update": {
+      "success": "Mise à jour bien effectuée !",
+      "error": "La modification a échoué, veuillez rééssayer."
+    },
+    "delete": {
+      "success": "Suppression effectuée !",
+      "error": "La suppression a échoué, veuillez rééssayer."
+    }
+  },
+  "404": {
+    "page-not-exists": "Cette page n'existe pas",
+    "return-home": "Retour vers le tableau de bord"
+  }
+}

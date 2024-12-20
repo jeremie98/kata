@@ -1,0 +1,12 @@
+node_modules
+dist
+
+*.json
+*.js
+
+.husky
+
+.npmrc
+.nvmrc
+.yarnrc
+.gitignore

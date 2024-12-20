@@ -1,0 +1,29 @@
+{
+  "name": "@kata/eslint-config-custom",
+  "version": "0.0.0",
+  "private": true,
+  "files": [
+    "library.js",
+    "next.js",
+    "react-internal.js"
+  ],
+  "scripts": {
+    "clean": "rimraf node_modules"
+  },
+  "devDependencies": {
+    "@types/eslint": "^9.6.1",
+    "@typescript-eslint/parser": "^8.13.0",
+    "@vercel/style-guide": "^5.2.0",
+    "eslint-config-nestjs": "^0.8.0",
+    "eslint-config-next": "^15.0.2",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-config-turbo": "^1.12.4",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-only-warn": "^1.1.0",
+    "eslint-plugin-tailwindcss": "^3.17.5",
+    "globals": "^15.12.0",
+    "rimraf": "^5.0.5",
+    "typescript": "^5.4.2",
+    "typescript-eslint": "^8.13.0"
+  }
+}

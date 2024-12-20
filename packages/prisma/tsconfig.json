@@ -1,0 +1,10 @@
+{
+    "extends": "@kata/ts-config/nest",
+    "compilerOptions": {
+        "baseUrl": "./",
+        "outDir": "dist",
+    },
+    "include": [
+        "src/**/*"
+    ]
+}

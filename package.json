@@ -1,0 +1,46 @@
+{
+  "name": "kata",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "turbo build",
+    "build:packages": "turbo build --filter=./packages/*",
+    "postinstall": "turbo postinstall",
+    "dev": "turbo dev --parallel",
+    "lint": "turbo lint",
+    "test": "turbo test",
+    "format": "prettier --write \"**/*.{ts,tsx,md,mjs}\"",
+    "clean": "turbo clean && rimraf node_modules .turbo",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@b12k/branch-name-lint": "^1.1.0",
+    "@commitlint/cli": "^19.2.0",
+    "@commitlint/config-conventional": "^19.1.0",
+    "@kata/eslint-config-custom": "*",
+    "@kata/ts-config": "*",
+    "commitizen": "^4.3.0",
+    "cz-conventional-changelog": "^3.3.0",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.2",
+    "prettier": "^3.2.5",
+    "prettier-plugin-tailwindcss": "^0.5.11",
+    "turbo": "^2.0.9"
+  },
+  "packageManager": "yarn@1.22.21",
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "engines": {
+    "npm": "10.x",
+    "node": "20.x"
+  },
+  "workspaces": [
+    "packages/*",
+    "api",
+    "frontend"
+  ],
+  "dependencies": {}
+}

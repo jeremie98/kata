@@ -1,0 +1,68 @@
+// This schema will auto-generate documentation you can find on prisma.kata.fr
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["views", "omitApi"]
+}
+
+generator docs {
+  provider = "node node_modules/prisma-docs-generator"
+  output   = "../docs"
+}
+
+datasource db {
+  provider     = "postgresql"
+  url          = env("DATABASE_URL")
+  relationMode = "foreignKeys"
+}
+
+// ENUMS
+
+enum EventType {
+  PERSONAL
+  TEAM
+  PROJECT
+}
+
+// MODELS
+
+model User {
+  user_id    String    @id @default(uuid())
+  firstname  String
+  lastname   String
+  email      String    @unique
+  password   String
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+
+  // Relations
+  events EventParticipant[]
+}
+
+model Event {
+  event_id   String    @id @default(uuid())
+  title      String
+  date_start DateTime
+  date_end   DateTime
+  type       EventType
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+
+  // Relations
+  participants EventParticipant[]
+}
+
+model EventParticipant {
+  event_participant_id String   @id @default(uuid())
+  event_id             String
+  user_id              String
+  created_at           DateTime @default(now())
+  updated_at           DateTime @updatedAt
+
+  // Relations
+  user  User  @relation(fields: [user_id], references: [user_id])
+  event Event @relation(fields: [event_id], references: [event_id])
+
+  @@unique([event_id, user_id])
+}

@@ -1,0 +1,7 @@
+**/node_modules
+node_modules
+.dockerignore
+docker-compose.yaml
+dockerfiles/*
+.git
+tests/integration

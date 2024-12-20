@@ -1,0 +1,27 @@
+{
+  "name": "@kata/typings",
+  "version": "0.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "private": true,
+  "exports": {
+    "import": "./dist/index.mjs",
+    "require": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsup index.ts",
+    "clean": "rimraf .turbo dist node_modules"
+  },
+  "dependencies": {
+    "@kata/day": "*",
+    "@kata/prisma": "*",
+    "@types/react": "^18.2.46"
+  },
+  "devDependencies": {
+    "@kata/ts-config": "*",
+    "@types/reflect-metadata": "^0.1.0",
+    "rimraf": "^5.0.5",
+    "tsup": "^8.0.2",
+    "typescript": "^5.4.2"
+  }
+}

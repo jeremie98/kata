@@ -1,0 +1,21 @@
+services:
+  db-kata:
+    container_name: db-kata
+    image: postgres:16.2
+    ## mac m1
+    platform: linux/amd64
+    cap_add:
+      - SYS_NICE
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: db-kata
+    ports:
+      - '5410:5432'
+    volumes:
+      - db-kata:/var/lib/postgres
+      - ./packages/prisma/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+volumes:
+  db-kata:
+    driver: local
