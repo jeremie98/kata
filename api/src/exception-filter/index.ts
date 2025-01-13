@@ -17,13 +17,13 @@ export class ExceptionFilter implements NestExceptionFilter {
         case 'http': {
           const response = host.switchToHttp().getResponse();
           const status = err.status ? err.status : 500;
-
           const sentMessage = message
             ? message
-            : 'Une erreur est survenue. Si le problème persiste, contactez l’assistance Kata : support@kata.fr';
+            : "Une erreur est survenue. Si le problème persiste, contactez l'assistance Kata : support@kata.fr";
 
           response.status(status).send({
             success: err.success,
+            data: err.data,
             message: sentMessage,
           });
           break;

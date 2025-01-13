@@ -49,6 +49,7 @@ export class ErrorInterceptor implements NestInterceptor {
         return throwError(() => ({
           success: false,
           status: status,
+          data: err.response.data ?? null,
           message: err.response?.message || err.message,
         }));
       })

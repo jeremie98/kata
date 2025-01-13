@@ -5,28 +5,39 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { SupportedLocale } from '@/i18n/locales';
-import dayjs from '@kata/day';
 import { EventReturn, EventType } from '@kata/typings';
 import timeGridPlugin from '@fullcalendar/timegrid';
-import { EventClickArg } from '@fullcalendar/core/index.js';
+import { DatesSetArg } from '@fullcalendar/core';
+import { useDashboard } from '@/context/DashboardProvider';
 
 interface CalendarProps {
   dataEvents: EventReturn[];
-  onEventClick: (arg: EventClickArg) => void;
+  onEventClick: (idEvent: string) => void;
+  onDatesChange: (dates: DatesSetArg) => void;
 }
 
-export const Calendar = ({ dataEvents, onEventClick }: CalendarProps) => {
+export const Calendar = ({
+  dataEvents,
+  onEventClick,
+  onDatesChange,
+}: CalendarProps) => {
+  const { user } = useDashboard();
+
   const getStylesEventCalendar = (event: EventReturn) => {
-    switch (event.type) {
-      case EventType.PERSONAL:
-        return 'personal-event';
-      case EventType.PROJECT:
-        return 'project-event';
-      case EventType.TEAM:
-        return 'team-event';
-      default:
-        return '';
+    if (event.participants.find((p) => p.user_id === user.user_id)) {
+      switch (event.type) {
+        case EventType.PERSONAL:
+          return 'personal-event';
+        case EventType.PROJECT:
+          return 'project-event';
+        case EventType.TEAM:
+          return 'team-event';
+        default:
+          return 'others-event';
+      }
     }
+
+    return 'others-event';
   };
 
   const events = dataEvents.map((e) => {
@@ -51,12 +62,10 @@ export const Calendar = ({ dataEvents, onEventClick }: CalendarProps) => {
           month: 'long',
           year: 'numeric',
         }}
-        timeZone="Europe/Paris"
         weekends={false}
         plugins={[interactionPlugin, timeGridPlugin, dayGridPlugin]}
         initialView="dayGridWeek"
         selectable
-        // select={onSelectSlot}
         events={events}
         buttonText={{ today: "Aujourd'hui" }}
         locale={SupportedLocale.FR}
@@ -70,9 +79,9 @@ export const Calendar = ({ dataEvents, onEventClick }: CalendarProps) => {
           weekday: 'long',
           day: 'numeric',
         }}
-        eventClick={onEventClick}
-        // datesSet={handleChangeView}
-        selectAllow={(selectInfo) => dayjs(selectInfo.startStr) > dayjs()}
+        eventClick={(info) => onEventClick(info.event.id)}
+        datesSet={onDatesChange}
+        selectAllow={(selectInfo) => selectInfo.start > new Date()}
       />
     </div>
   );

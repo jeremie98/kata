@@ -129,4 +129,10 @@
       background-color: #FFB334;
       border: 1px solid #FFB334;
   }
+
+  .others-event {
+    border: 1px solid #E0E0E0;
+    background-color: #E0E0E0;
+    cursor: not-allowed;
+  }
 }

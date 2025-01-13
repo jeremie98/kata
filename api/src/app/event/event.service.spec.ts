@@ -285,66 +285,6 @@ describe('EventService', () => {
     });
   });
 
-  describe('when the addParticipants function is called', () => {
-    it('should add participants successfully and return the event', async () => {
-      prismaMock.event.findUnique.mockResolvedValue(mockEvents[0]);
-      prismaMock.eventParticipant.createMany.mockResolvedValue({ count: 1 });
-
-      const result = await eventService.addParticipants(
-        mockEvents[0].event_id,
-        {
-          participantIds: ['userId1'],
-        }
-      );
-
-      expect(result).toEqual(mockEvents[0]);
-      expect(prismaMock.eventParticipant.createMany).toBeCalledTimes(1);
-      expect(prismaMock.eventParticipant.createMany).toBeCalledWith({
-        data: [{ event_id: mockEvents[0].event_id, user_id: 'userId1' }],
-        skipDuplicates: true,
-      });
-    });
-
-    it('should throw an error if no participant IDs are provided', async () => {
-      await expect(() =>
-        eventService.addParticipants(mockEvents[0].event_id, {
-          participantIds: [],
-        })
-      ).rejects.toThrow('No participant IDs provided for addition.');
-    });
-  });
-
-  describe('when the removeParticipants function is called', () => {
-    it('should remove participants successfully and return the event', async () => {
-      prismaMock.event.findUnique.mockResolvedValue(mockEvents[0]);
-      prismaMock.eventParticipant.deleteMany.mockResolvedValue({ count: 1 });
-
-      const result = await eventService.removeParticipants(
-        mockEvents[0].event_id,
-        {
-          participantIds: ['userId1'],
-        }
-      );
-
-      expect(result).toEqual(mockEvents[0]);
-      expect(prismaMock.eventParticipant.deleteMany).toBeCalledTimes(1);
-      expect(prismaMock.eventParticipant.deleteMany).toBeCalledWith({
-        where: {
-          event_id: mockEvents[0].event_id,
-          user_id: { in: ['userId1'] },
-        },
-      });
-    });
-
-    it('should throw an error if no participant IDs are provided', async () => {
-      await expect(() =>
-        eventService.removeParticipants(mockEvents[0].event_id, {
-          participantIds: [],
-        })
-      ).rejects.toThrow('No participant IDs provided for removal.');
-    });
-  });
-
   describe('when the detectScheduleConflicts function is called', () => {
     it('should return conflicts if there are any', async () => {
       prismaMock.eventParticipant.findMany.mockResolvedValue(

@@ -2,6 +2,15 @@
 
 import * as React from 'react';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
   Button,
   DateTimePicker,
   Form,
@@ -25,48 +34,40 @@ import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
-import { useRouter } from '@/i18n/routing';
-import {
-  checkEventConflicts,
-  createEvent,
-  suggestFreeCalendarSlots,
-} from '../actions';
+import { checkEventConflicts, deleteEvent, updateEvent } from '../actions';
 import {
   DetectScheduleConflictsResponse,
+  EventReturn,
   EventType,
-  SuggestFreeCalendarSlotsResponse,
   UserReturn,
 } from '@kata/typings';
 import { SupportedLocale } from '@/i18n/locales';
 import dayjs from '@kata/day';
 import { cn } from '@/utils';
-import { useDashboard } from '@/context/DashboardProvider';
-import { SuggestionSlots } from './SuggestionSlots';
+import { useRouter } from '@/i18n/routing';
 
 interface EventFormProps {
   open: boolean;
   onClose: () => void;
+  event: EventReturn | null;
   potentialParticipants: UserReturn[];
 }
 
-export const EventForm = ({
+export const EventDetails = ({
   open,
   onClose,
+  event,
   potentialParticipants,
 }: EventFormProps) => {
   const t = useTranslations('events.form');
   const tForm = useTranslations('form');
   const tActions = useTranslations('submit-action');
-  const router = useRouter();
   const { toast } = useToast();
-  const { user } = useDashboard();
+  const router = useRouter();
 
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [eventConflicts, setEventConflicts] = React.useState<
     DetectScheduleConflictsResponse[]
-  >([]);
-  const [slotSuggestions, setSlotSuggestions] = React.useState<
-    SuggestFreeCalendarSlotsResponse[]
   >([]);
 
   const formSchema = z
@@ -90,19 +91,21 @@ export const EventForm = ({
     mode: 'onChange',
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: '',
-      participantIds: [user.user_id],
-      type: EventType.PERSONAL,
+      title: event?.title,
+      participantIds: event?.participants.map((p) => p.user_id) ?? [],
+      type: event?.type,
+      dateStart: dayjs(event?.date_start).toDate(),
+      dateEnd: dayjs(event?.date_end).toDate(),
     },
   });
 
-  const onCreate = async (values: z.infer<typeof formSchema>) => {
+  const onUpdate = async (values: z.infer<typeof formSchema>) => {
     const { title, dateStart, dateEnd, type, participantIds } = values;
 
     try {
       setIsLoading(true);
 
-      const response = await createEvent({
+      const response = await updateEvent(event?.event_id, {
         title,
         dateStart: dayjs(dateStart).format('YYYY-MM-DD HH:mm:ss'),
         dateEnd: dayjs(dateEnd).format('YYYY-MM-DD HH:mm:ss'),
@@ -114,7 +117,33 @@ export const EventForm = ({
         setIsLoading(false);
         toast({
           variant: 'success',
-          description: tActions('create.success'),
+          description: tActions('update.success'),
+        });
+        router.refresh();
+        onClose();
+      } else {
+        setIsLoading(false);
+        toast({
+          variant: 'destructive',
+          description: response.message,
+        });
+      }
+    } catch (err) {
+      setIsLoading(false);
+    }
+  };
+
+  const onDelete = async () => {
+    try {
+      setIsLoading(true);
+
+      const response = await deleteEvent(event?.event_id);
+
+      if (response.success) {
+        setIsLoading(false);
+        toast({
+          variant: 'success',
+          description: tActions('delete.success'),
         });
         router.refresh();
         onClose();
@@ -156,85 +185,67 @@ export const EventForm = ({
     }
   };
 
-  const onSuggestFreeCalendarSlots = async (
-    dateStart: string,
-    dateEnd: string,
-    participantIds: string[]
-  ) => {
-    try {
-      setIsLoading(true);
-
-      const response = await suggestFreeCalendarSlots({
-        dateStart: dayjs(dateStart).format('YYYY-MM-DD HH:mm:ss'),
-        dateEnd: dayjs(dateEnd).format('YYYY-MM-DD HH:mm:ss'),
-        participantIds,
-      });
-
-      if (response.success && response.data.length > 0) {
-        setIsLoading(false);
-        setSlotSuggestions(response.data);
-      } else {
-        setIsLoading(false);
-        setSlotSuggestions([]);
-      }
-    } catch (err) {
-      setIsLoading(false);
-    }
-  };
-
-  const onSuggestionClick = (suggestion: SuggestFreeCalendarSlotsResponse) => {
-    const { dateStart, dateEnd } = suggestion;
-
-    form.reset({
-      title: form.getValues('title') ?? '',
-      type: form.getValues('type'),
-      dateStart: dayjs(dateStart).toDate(),
-      dateEnd: dayjs(dateEnd).toDate(),
-      participantIds: form.getValues('participantIds') ?? [user.user_id],
-    });
-
-    setEventConflicts([]);
-  };
-
   React.useEffect(() => {
+    form.reset();
     setEventConflicts([]);
-    setSlotSuggestions([]);
-    form.reset({
-      title: '',
-      participantIds: [user.user_id],
-      type: EventType.PERSONAL,
-    });
   }, [onClose]);
+
+  const defaultValuesRef = React.useRef({
+    dateStart: dayjs(event?.date_start).toDate(),
+    dateEnd: dayjs(event?.date_end).toDate(),
+    participantIds: event?.participants.map((p) => p.user_id) ?? [],
+  });
 
   const { dateStart, dateEnd, participantIds } = form.watch();
 
   React.useEffect(() => {
-    setSlotSuggestions([]);
+    setEventConflicts([]);
 
-    if (dateStart && dateEnd && participantIds?.length > 0) {
+    const newParticipants = participantIds.filter(
+      (id) => !defaultValuesRef.current.participantIds.includes(id)
+    );
+
+    const hasChanged =
+      dayjs(dateStart).isSame(defaultValuesRef.current.dateStart) === false ||
+      dayjs(dateEnd).isSame(defaultValuesRef.current.dateEnd) === false ||
+      newParticipants.length > 0;
+
+    if (hasChanged && dateStart && dateEnd && participantIds.length > 0) {
       onCheckEventConflicts(
         dayjs(dateStart).format('YYYY-MM-DD HH:mm:ss'),
         dayjs(dateEnd).format('YYYY-MM-DD HH:mm:ss'),
-        participantIds
+        newParticipants
       );
     }
   }, [dateStart, dateEnd, participantIds]);
 
   React.useEffect(() => {
-    if (eventConflicts.length > 0 && slotSuggestions.length === 0) {
-      onSuggestFreeCalendarSlots(
-        dayjs(dateStart).format('YYYY-MM-DD HH:mm:ss'),
-        dayjs(dateEnd).format('YYYY-MM-DD HH:mm:ss'),
-        participantIds
-      );
+    if (event) {
+      const { title, type, date_start, date_end } = event;
+
+      form.reset({
+        title,
+        participantIds: event.participants.map((p) => p.user_id) ?? [],
+        type: type,
+        dateStart: dayjs(date_start).toDate(),
+        dateEnd: dayjs(date_end).toDate(),
+      });
+
+      defaultValuesRef.current = {
+        dateStart: dayjs(date_start).toDate(),
+        dateEnd: dayjs(date_end).toDate(),
+        participantIds: event.participants.map((p) => p.user_id) ?? [],
+      };
     }
-  }, [eventConflicts]);
+  }, [event, form.reset]);
 
   return (
     <Sheet open={open} onOpenChange={onClose}>
       <SheetContent className="" closeClassName="text-black">
         <SheetHeader className="h-16 w-full">
-          <SheetTitle className="text-xl">{t('new')}</SheetTitle>
+          <SheetTitle className="text-xl">
+            {t('update', { title: event?.title })}
+          </SheetTitle>
         </SheetHeader>
         <Form {...form}>
           <form className="space-y-6">
@@ -243,7 +254,7 @@ export const EventForm = ({
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-[#516f90]">{t('title')}</FormLabel>
+                  <FormLabel>{t('title')}</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -368,7 +379,7 @@ export const EventForm = ({
             <Button
               className="w-full"
               type="submit"
-              onClick={form.handleSubmit(onCreate)}
+              onClick={form.handleSubmit(onUpdate)}
               disabled={
                 !form.formState.isValid ||
                 isLoading ||
@@ -376,17 +387,32 @@ export const EventForm = ({
               }
             >
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {tForm('add')}
+              {tForm('save')}
             </Button>
           </form>
         </Form>
 
-        {slotSuggestions.length > 0 && (
-          <SuggestionSlots
-            suggestions={slotSuggestions}
-            onSuggestionClick={onSuggestionClick}
-          />
-        )}
+        <AlertDialog>
+          <AlertDialogTrigger className="mt-2 w-full">
+            <Button variant="destructive" className="w-full">
+              {tForm('delete')}
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t('delete-event.title')}</AlertDialogTitle>
+              <AlertDialogDescription>
+                {t('delete-event.explain')}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>{tForm('cancel')}</AlertDialogCancel>
+              <AlertDialogAction onClick={onDelete}>
+                {tForm('continue')}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </SheetContent>
     </Sheet>
   );

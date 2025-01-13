@@ -33,6 +33,16 @@ export const DatePicker = ({
   onChange,
   classname,
 }: DatePickerProps) => {
+  const hiddenMatcher = React.useMemo(() => {
+    if (!fromDate && !toDate) return undefined;
+
+    return (date: Date) => {
+      const isBefore = fromDate ? date < fromDate : false;
+      const isAfter = toDate ? date > toDate : false;
+      return isBefore || isAfter;
+    };
+  }, [fromDate, toDate]);
+
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -58,9 +68,7 @@ export const DatePicker = ({
           selected={value}
           defaultMonth={value ? dayjs(value).toDate() : undefined}
           onSelect={onChange}
-          initialFocus
-          fromDate={fromDate}
-          toDate={toDate}
+          hidden={hiddenMatcher}
           disabled={disabled}
         />
       </PopoverContent>

@@ -26,3 +26,8 @@ echo "" >> .env
 echo "# MAILING" >> .env
 echo "SENDGRID_API_KEY=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" >> .env
 echo "AUTOMATIC_MAIL=jeje97180@hotmail.fr" >> .env
+
+echo "" >> .env
+
+echo "# EVENTS PLANNING" >> .env
+echo "SUGGESTIONS_SLOTS_NUMBERS=4" >> .env

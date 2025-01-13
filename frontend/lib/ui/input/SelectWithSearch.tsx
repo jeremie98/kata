@@ -13,7 +13,6 @@ import {
   CommandList,
 } from '../Command';
 import { cn } from '@/utils';
-import { useTranslations } from 'next-intl';
 
 interface SelectOption {
   value: string;
@@ -39,7 +38,6 @@ const SelectWithSearch = ({
   searchLabel,
   noItemsFoundLabel,
 }: SelectWithSearchProps) => {
-  const t = useTranslations('select-search');
   const [open, setOpen] = React.useState(false);
 
   const handleOnSelect = (selectedValue: string) => {
@@ -62,15 +60,17 @@ const SelectWithSearch = ({
         >
           {value
             ? options.find((o) => o.value === value)?.label
-            : (placeholder ?? t('placeholder'))}
+            : (placeholder ?? 'Sélectionner...')}
           <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="popover-content-width-full w-full p-0">
         <Command>
-          <CommandInput placeholder={searchLabel ?? t('search')} />
+          <CommandInput placeholder={searchLabel ?? 'Rechercher'} />
           <CommandList>
-            <CommandEmpty>{noItemsFoundLabel ?? t('no-results')}</CommandEmpty>
+            <CommandEmpty>
+              {noItemsFoundLabel ?? 'Pas de résultats.'}
+            </CommandEmpty>
             <CommandGroup className="max-h-60 overflow-y-auto">
               {options.map((o) => (
                 <CommandItem

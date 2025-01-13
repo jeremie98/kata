@@ -1,14 +1,14 @@
 import {
   $Enums,
-  AddRemoveParticipantsParams,
   CreateUpdateEventParams,
   DetectScheduleConflictsParams,
   DetectScheduleConflictsResponse,
+  SuggestFreeCalendarSlotsResponse,
   type EventReturn,
   type UserReturn,
 } from '@kata/typings';
 import { ApiProperty } from '@nestjs/swagger';
-import { ArrayMinSize, IsArray, IsString } from 'class-validator';
+import { ArrayMinSize, IsArray, IsDate, IsString } from 'class-validator';
 import { UserResponseDto } from '../user/user.dto';
 
 export class EventResponseDto implements EventReturn {
@@ -61,14 +61,6 @@ export class CreateUpdateEventDto implements CreateUpdateEventParams {
   type!: $Enums.EventType;
 }
 
-export class AddRemoveParticipantsDto implements AddRemoveParticipantsParams {
-  @ApiProperty()
-  @IsArray()
-  @IsString({ each: true })
-  @ArrayMinSize(1)
-  participantIds!: string[];
-}
-
 export class DetectScheduleConflictsParamsDto
   implements DetectScheduleConflictsParams
 {
@@ -95,4 +87,16 @@ export class DetectScheduleConflictsResponseDto
 
   @ApiProperty({ type: EventResponseDto, isArray: true })
   conflictingEvents!: EventReturn[];
+}
+
+export class SuggestFreeCalendarSlotsResponseDto
+  implements SuggestFreeCalendarSlotsResponse
+{
+  @ApiProperty()
+  @IsDate()
+  dateStart!: Date;
+
+  @ApiProperty()
+  @IsDate()
+  dateEnd!: Date;
 }

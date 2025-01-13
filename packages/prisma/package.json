@@ -26,7 +26,8 @@
     "prisma:studio": "yarn prisma studio",
     "prisma:seed": "tsx prisma/seed/index.ts",
     "prisma:reset": "yarn prisma migrate reset",
-    "clean": "yarn db:clean && rimraf .turbo dist node_modules docs && shx echo \"Cleaned!\""
+    "clean": "yarn db:clean && rimraf .turbo dist node_modules docs && shx echo \"Cleaned!\"",
+    "postinstall": "sh ./scripts/prepare-env.sh"
   },
   "dependencies": {
     "@nestjs/common": "^10.3.4",

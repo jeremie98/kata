@@ -12,16 +12,17 @@ export interface EventReturn {
   updated_at: Date;
 }
 
+export interface FetchEventsPlanningParams {
+  dateStart: string;
+  dateEnd: string;
+}
+
 export interface CreateUpdateEventParams {
   title: string;
   dateStart: string;
   dateEnd: string;
   participantIds: string[];
   type: EventType;
-}
-
-export interface AddRemoveParticipantsParams {
-  participantIds: string[];
 }
 
 export interface DetectScheduleConflictsParams {
@@ -33,4 +34,9 @@ export interface DetectScheduleConflictsParams {
 export interface DetectScheduleConflictsResponse {
   user: UserReturn;
   conflictingEvents: EventReturn[];
+}
+
+export interface SuggestFreeCalendarSlotsResponse {
+  dateStart: Date;
+  dateEnd: Date;
 }

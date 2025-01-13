@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { EventService } from './event.service';
@@ -15,9 +16,9 @@ import { ApiOkResponseCustom } from 'src/utils/swagger';
 import {
   EventResponseDto,
   CreateUpdateEventDto,
-  AddRemoveParticipantsDto,
   DetectScheduleConflictsParamsDto,
   DetectScheduleConflictsResponseDto,
+  SuggestFreeCalendarSlotsResponseDto,
 } from './event.dto';
 
 @Controller('events')
@@ -26,7 +27,6 @@ export class EventController {
   constructor(private readonly eventService: EventService) {}
 
   @UseGuards(AuthAtGuard)
-  @UseGuards(EventParticipantGuard)
   @Get(':id')
   @ApiOperation({ summary: 'Fetch one by id' })
   @ApiOkResponseCustom(EventResponseDto)
@@ -35,12 +35,23 @@ export class EventController {
   }
 
   @UseGuards(AuthAtGuard)
+  @Get('planning')
+  @ApiOperation({ summary: 'Fetch events planning' })
+  @ApiOkResponseCustom(EventResponseDto, true)
+  async fetchEventsPlanning(
+    @Query('dateStart') dateStart: string,
+    @Query('dateEnd') dateEnd: string
+  ): Promise<EventResponseDto[]> {
+    return await this.eventService.fetchEventsPlanning({ dateStart, dateEnd });
+  }
+
+  @UseGuards(AuthAtGuard)
   @Post()
   @ApiOperation({ summary: 'Create event' })
   @ApiOkResponseCustom(EventResponseDto)
   async createEvent(
     @Body() createDto: CreateUpdateEventDto
-  ): Promise<EventResponseDto> {
+  ): Promise<EventResponseDto | DetectScheduleConflictsResponseDto[]> {
     return await this.eventService.createEvent(createDto);
   }
 
@@ -54,30 +65,6 @@ export class EventController {
     @Body() updateDto: CreateUpdateEventDto
   ): Promise<EventResponseDto> {
     return await this.eventService.updateEvent(id, updateDto);
-  }
-
-  @UseGuards(AuthAtGuard)
-  @UseGuards(EventParticipantGuard)
-  @Post(':id/participants')
-  @ApiOperation({ summary: 'Add participants to an event' })
-  @ApiOkResponseCustom(EventResponseDto)
-  async addParticipants(
-    @Param('id') idEvent: string,
-    @Body() addDto: AddRemoveParticipantsDto
-  ): Promise<EventResponseDto> {
-    return await this.eventService.addParticipants(idEvent, addDto);
-  }
-
-  @UseGuards(AuthAtGuard)
-  @UseGuards(EventParticipantGuard)
-  @Delete(':id/participants')
-  @ApiOperation({ summary: 'Remove participants to an event' })
-  @ApiOkResponseCustom(EventResponseDto)
-  async removeParticipants(
-    @Param('id') idEvent: string,
-    @Body() removeDto: AddRemoveParticipantsDto
-  ): Promise<EventResponseDto> {
-    return await this.eventService.removeParticipants(idEvent, removeDto);
   }
 
   @UseGuards(AuthAtGuard)
@@ -99,5 +86,17 @@ export class EventController {
     @Body() conflictDto: DetectScheduleConflictsParamsDto
   ): Promise<DetectScheduleConflictsResponseDto[]> {
     return await this.eventService.detectScheduleConflicts(conflictDto);
+  }
+
+  @UseGuards(AuthAtGuard)
+  @Post('suggest-free-slots')
+  @ApiOperation({
+    summary: 'Suggest free slots for a list of participants',
+  })
+  @ApiOkResponseCustom(SuggestFreeCalendarSlotsResponseDto, true)
+  async suggestFreeCalendarSlots(
+    @Body() conflictDto: DetectScheduleConflictsParamsDto
+  ): Promise<SuggestFreeCalendarSlotsResponseDto[]> {
+    return await this.eventService.suggestFreeCalendarSlots(conflictDto);
   }
 }

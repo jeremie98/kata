@@ -7,6 +7,8 @@ import {
   DetectScheduleConflictsParams,
   DetectScheduleConflictsResponse,
   EventReturn,
+  FetchEventsPlanningParams,
+  SuggestFreeCalendarSlotsResponse,
   UserReturn,
 } from '@kata/typings';
 
@@ -37,12 +39,19 @@ export async function fetchParticipants(): Promise<ApiResponse<UserReturn[]>> {
   }
 }
 
-export async function fetchEvents(): Promise<ApiResponse<EventReturn[]>> {
+export async function fetchEventsPlanning(
+  params: FetchEventsPlanningParams
+): Promise<ApiResponse<EventReturn[]>> {
+  const { dateStart, dateEnd } = params;
+
   try {
-    return await fetchWithCredentials('users/events', {
-      method: 'GET',
-      cache: 'no-store',
-    });
+    return await fetchWithCredentials(
+      `events/planning?dateStart=${dateStart}&dateEnd=${dateEnd}`,
+      {
+        method: 'GET',
+        cache: 'no-store',
+      }
+    );
   } catch (err) {
     return {
       data: [],
@@ -53,7 +62,7 @@ export async function fetchEvents(): Promise<ApiResponse<EventReturn[]>> {
 
 export async function createEvent(
   body: CreateUpdateEventParams
-): Promise<ApiResponse<EventReturn>> {
+): Promise<ApiResponse<EventReturn | DetectScheduleConflictsResponse[]>> {
   try {
     return await fetchWithCredentials('events', {
       method: 'POST',
@@ -104,6 +113,22 @@ export async function checkEventConflicts(
 ): Promise<ApiResponse<DetectScheduleConflictsResponse[]>> {
   try {
     return await fetchWithCredentials('events/detect-conflicts', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+  } catch (err) {
+    return {
+      data: [],
+      success: false,
+    };
+  }
+}
+
+export async function suggestFreeCalendarSlots(
+  body: DetectScheduleConflictsParams
+): Promise<ApiResponse<SuggestFreeCalendarSlotsResponse[]>> {
+  try {
+    return await fetchWithCredentials('events/suggest-free-slots', {
       method: 'POST',
       body: JSON.stringify(body),
     });

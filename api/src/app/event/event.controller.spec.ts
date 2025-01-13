@@ -189,33 +189,6 @@ describe('EventController', () => {
     });
   });
 
-  describe('addParticipants', () => {
-    it('should add participants to an event', async () => {
-      const addDto = { participantIds: ['participant1', 'participant2'] };
-      const result = await eventController.addParticipants('eventid3', addDto);
-      expect(result).toEqual({ event_id: 'eventid3', ...addDto });
-      expect(eventService.addParticipants).toHaveBeenCalledWith(
-        'eventid3',
-        addDto
-      );
-    });
-  });
-
-  describe('removeParticipants', () => {
-    it('should remove participants from an event', async () => {
-      const removeDto = { participantIds: ['participant1'] };
-      const result = await eventController.removeParticipants(
-        'eventid3',
-        removeDto
-      );
-      expect(result).toEqual({ event_id: 'eventid3', ...removeDto });
-      expect(eventService.removeParticipants).toHaveBeenCalledWith(
-        'eventid3',
-        removeDto
-      );
-    });
-  });
-
   describe('detectScheduleConflicts', () => {
     it('should detect schedule conflicts for participants', async () => {
       eventService.detectScheduleConflicts = vi
